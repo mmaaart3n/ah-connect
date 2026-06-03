@@ -1,6 +1,6 @@
 {
-  "name": "AH Shopping",
+  "name": "AH Connect",
   "content_in_root": false,
-  "filename": "ah_shopping",
+  "filename": "ah_connect",
   "homeassistant": "2024.1.0"
 }

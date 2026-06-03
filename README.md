@@ -1,140 +1,107 @@
-# AH Shopping – Home Assistant Integration
+# AH Connect
 
-[![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/integration)
+[![HACS Custom](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
 [![Validate](https://github.com/mmaaart3n/ah-connect/actions/workflows/validate.yml/badge.svg)](https://github.com/mmaaart3n/ah-connect/actions/workflows/validate.yml)
 
-Home Assistant custom integration voor **Albert Heijn**, gebouwd op de onofficiële Appie mobiele API. Technische referentie: [appie-go](https://github.com/gwillem/appie-go) (Python-port, geen Go-runtime).
+**AH Connect** is a Home Assistant custom integration for Albert Heijn product search, shopping lists, receipts and optional experimental order/cart features.
 
-> **Waarschuwing:** Dit is een **onofficiële, ongedocumenteerde API**. Albert Heijn kan endpoints op elk moment wijzigen of blokkeren. Gebruik op eigen risico. **Geen checkout of bestellingen** in de MVP.
+It is a **Python-native** Home Assistant integration, functionally inspired by [appie-go](https://github.com/gwillem/appie-go). appie-go is the only technical/API reference. appie-go is not used as a runtime dependency and no Go code is copied.
 
-## Functies (MVP)
+> **Warning:** This integration uses the **unofficial** Albert Heijn mobile API. It may break without notice. Never share tokens, config JSON, logs or screenshots containing credentials.
 
-| Functie | Anonymous | Authenticated |
-|---------|-----------|---------------|
-| Producten zoeken | ✅ | ✅ |
-| Lokale boodschappenlijst | ✅ | ✅ |
-| Bon-sensoren | ❌ | ✅ |
-| Automatische token refresh | — | ✅ |
-| Export naar HA todo | ✅ | ✅ |
+## Features
 
-## Installatie
+- Product search (anonymous or authenticated)
+- Bonus products and laatste-kans koopjes (by postal code)
+- Receipts (kassabonnen) when authenticated
+- Remote AH shopping lists (authenticated)
+- Optional experimental order/cart services (no checkout)
 
-### Via HACS (aanbevolen)
+## Not supported
 
-1. Open **HACS → Integrations** (drie puntjes → **Custom repositories**).
-2. Voeg toe:
-   - **Repository URL:** `https://github.com/mmaaart3n/ah-connect`
-   - **Category:** Integration
-3. Zoek **AH Shopping** en installeer.
-4. **Herstart Home Assistant.**
-5. Ga naar **Instellingen → Apparaten & services → Integratie toevoegen** en zoek op **AH Shopping**.
+- Checkout / place order / payment / finalize order
 
-Zie [docs/INSTALLATION.md](docs/INSTALLATION.md) voor gedetailleerde instructies.
+## Installation (HACS)
 
-### Handmatig
+1. Add custom repository: `https://github.com/mmaaart3n/ah-connect`
+2. Category: **Integration**
+3. Install **AH Connect** and restart Home Assistant
+4. Add integration via **Settings → Devices & services**
 
-1. Download of clone [https://github.com/mmaaart3n/ah-connect](https://github.com/mmaaart3n/ah-connect)
-2. Kopieer `custom_components/ah_shopping/` naar je Home Assistant `config/custom_components/` map
-3. Herstart Home Assistant
-4. Voeg de integratie toe via de UI
+## Configuration
 
-## Configuratie
+### Recommended: authenticated via appie-go CLI
 
-Alle configuratie verloopt via de **Home Assistant UI** (geen YAML vereist):
+On a machine with Go:
 
-1. **Config flow** – kies Anonymous of Authenticated (OAuth-code)
-2. **Options flow** – scan interval, max zoekresultaten, bon-sensoren aan/uit
-
-Zie [docs/AUTHENTICATION.md](docs/AUTHENTICATION.md) voor OAuth-instructies.
-
-## Snel starten
-
-### Anonymous mode (alleen zoeken)
-
-1. Kies **Anonymous** tijdens setup.
-2. Roep de zoek-service aan:
-
-```yaml
-service: ah_shopping.search_products
-data:
-  query: melk
-  limit: 5
+```bash
+go install github.com/gwillem/appie-go/cmd/appie@latest
+appie login
+cat ~/.config/appie/config.json
 ```
 
-### Authenticated mode (bonnen + zoeken)
+In Home Assistant:
 
-1. Kies **Authenticated** tijdens setup.
-2. Open de OAuth URL (zie [docs/AUTHENTICATION.md](docs/AUTHENTICATION.md)).
-3. Plak de autorisatiecode in de config flow.
+1. Add **AH Connect**
+2. Choose **Authenticated via appie-go config**
+3. Paste the full JSON from `~/.config/appie/config.json`
+
+### Anonymous mode
+
+Choose **Anonymous** for product search and bonus only (no personal data).
+
+### Advanced fallback
+
+**Advanced fallback: authorization code** — only if CLI import is not possible. See [docs/AUTHENTICATION.md](docs/AUTHENTICATION.md).
 
 ## Services
 
-| Service | Beschrijving |
-|---------|-------------|
-| `ah_shopping.search_products` | Zoek producten op AH |
-| `ah_shopping.add_to_list` | Voeg product toe aan lokale lijst |
-| `ah_shopping.remove_from_list` | Verwijder product van lijst |
-| `ah_shopping.clear_list` | Maak lijst leeg |
-| `ah_shopping.get_list` | Haal lijst op (via event) |
-| `ah_shopping.refresh_receipts` | Vernieuw bondata (authenticated) |
-| `ah_shopping.export_list_to_todo` | Exporteer lijst naar HA todo |
+Results are published on the `ah_connect_result` event.
 
-Zie [docs/SERVICES.md](docs/SERVICES.md) voor alle details.
+| Service | Auth | Notes |
+|---------|------|-------|
+| `ah_connect.search_products` | Optional | |
+| `ah_connect.get_bonus_products` | Optional | |
+| `ah_connect.get_koopjes` | Optional | Requires `postal_code` |
+| `ah_connect.get_receipts` | Required | |
+| `ah_connect.get_shopping_lists` | Required | |
+| `ah_connect.get_order` | Required | Experimental option |
 
-## Sensoren
+Full list: [docs/SERVICES.md](docs/SERVICES.md)
 
-| Entiteit | Beschrijving |
-|----------|-------------|
-| `sensor.ah_shopping_list_count` | Aantal items op lokale lijst |
-| `sensor.ah_last_receipt_total` | Totaalbedrag laatste bon (authenticated) |
-| `sensor.ah_last_receipt_date` | Datum laatste bon (authenticated) |
+## Sensors
 
-## Voorbeeldautomatiseringen
+- Last receipt total/date (authenticated, option)
+- Remote shopping list count (authenticated, option)
+- Bonus product count (option)
+- Order total/items (experimental, authenticated)
 
-Zie [examples/automations.yaml](examples/automations.yaml).
+## Security
 
-## Security & beperkingen
+- Tokens are stored in the config entry
+- Diagnostics redact secrets
+- Do not share `config.json` or HA config entry exports
 
-- Tokens worden nooit gelogd of getoond in diagnostics
-- Geen checkout of order placement
-- Rate limiting en retry/backoff ingebouwd
-- Onofficiële API – geen garantie op stabiliteit
-
-Zie [docs/SECURITY_AND_LIMITATIONS.md](docs/SECURITY_AND_LIMITATIONS.md).
-
-## Troubleshooting
-
-Zie [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md).
-
-## Documentatie
-
-- [Installatie](docs/INSTALLATION.md)
-- [Authenticatie](docs/AUTHENTICATION.md)
-- [Services](docs/SERVICES.md)
-- [API Discovery](docs/AH_API_DISCOVERY.md)
-- [GitHub repository setup](docs/GITHUB_REPOSITORY_SETUP.md)
-- [appie-go referentie](docs/APPIE_GO_REFERENCE.md)
-- [Roadmap](docs/ROADMAP.md)
-
-## Issues & support
-
-Problemen of vragen? Open een issue:
-
-**https://github.com/mmaaart3n/ah-connect/issues**
-
-## Ontwikkeling
+## Development
 
 ```bash
-python3.12 -m venv .venv
+python -m venv .venv
 source .venv/bin/activate
 pip install pytest pytest-asyncio aiohttp voluptuous
 PYTHONPATH=. pytest tests/ -v
 ```
 
-## Disclaimer
+See [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
 
-Deze integratie gebruikt een **onofficiële, ongedocumenteerde API**. Albert Heijn kan toegang op elk moment wijzigen of blokkeren. Gebruik op eigen risico. Er worden **geen bestellingen geplaatst** in de MVP.
+## Changelog
 
-## Licentie
+### 0.1.0
 
-MIT
+- Initial clean appie-go focused build
+- Domain `ah_connect`, integration name **AH Connect**
+- appie-go config JSON import as primary authentication
+- Anonymous and advanced authorization-code fallback modes
+
+## License
+
+MIT — Albert Heijn and appie-go are separate projects; appie-go is AGPLv3.

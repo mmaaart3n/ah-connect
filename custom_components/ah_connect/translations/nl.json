@@ -1,0 +1,54 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "AH Connect",
+        "description": "Koppel Albert Heijn aan Home Assistant. Kies hoe je wilt inloggen.",
+        "data": {
+          "mode": "Instelmodus"
+        }
+      },
+      "appie_config": {
+        "title": "Importeer appie-go config",
+        "description": "Draai eerst `appie login` via de appie-go CLI en plak daarna de inhoud van `~/.config/appie/config.json`.",
+        "data": {
+          "appie_config_json": "appie-go config JSON"
+        }
+      },
+      "authorization_code": {
+        "title": "Geavanceerde fallback: authorization code",
+        "description": "Gebruik dit alleen als appie-go CLI import niet mogelijk is.",
+        "data": {
+          "authorization_code": "Authorization code"
+        }
+      }
+    },
+    "error": {
+      "invalid_json": "Ongeldige JSON. Controleer de inhoud van het configbestand.",
+      "missing_access_token": "Geen access token gevonden in de config.",
+      "missing_refresh_token": "Geen refresh token gevonden in de config.",
+      "invalid_appie_config": "Onbekend configformaat.",
+      "invalid_auth": "Authorization code kon niet worden omgezet naar tokens."
+    },
+    "abort": {
+      "already_configured": "Dit account is al geconfigureerd."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "AH Connect opties",
+        "data": {
+          "scan_interval": "Update-interval (seconden)",
+          "max_search_results": "Max. zoekresultaten",
+          "enable_receipts_sensor": "Laatste bon-sensoren inschakelen",
+          "enable_remote_shopping_list": "Sensor voor AH boodschappenlijst inschakelen",
+          "enable_bonus_sensor": "Sensor voor aantal bonusproducten inschakelen",
+          "experimental_order_enabled": "Experimentele order/winkelwagen-services inschakelen",
+          "experimental_checkout_enabled": "Checkout (niet geïmplementeerd, gereserveerd)",
+          "debug_logging": "Debug API-logging"
+        }
+      }
+    }
+  }
+}

@@ -1,11 +1,11 @@
 {
-  "domain": "ah_shopping",
-  "name": "AH Shopping",
+  "domain": "ah_connect",
+  "name": "AH Connect",
   "codeowners": ["@mmaaart3n"],
   "config_flow": true,
   "documentation": "https://github.com/mmaaart3n/ah-connect",
-  "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/mmaaart3n/ah-connect/issues",
-  "requirements": [],
-  "version": "0.2.0"
+  "iot_class": "cloud_polling",
+  "version": "0.1.0",
+  "requirements": []
 }

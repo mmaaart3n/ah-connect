@@ -1,0 +1,213 @@
+search_products:
+  fields:
+    query:
+      required: true
+      example: "melk"
+      selector:
+        text:
+    limit:
+      default: 10
+      selector:
+        number:
+          min: 1
+          max: 50
+
+search_products_filtered:
+  fields:
+    query:
+      required: true
+      selector:
+        text:
+    limit:
+      default: 10
+      selector:
+        number:
+          min: 1
+          max: 50
+    bonus_only:
+      default: false
+      selector:
+        boolean:
+
+get_product:
+  fields:
+    product_id:
+      required: true
+      selector:
+        number:
+
+get_product_full:
+  fields:
+    product_id:
+      required: true
+      selector:
+        number:
+
+get_products_by_ids:
+  fields:
+    product_ids:
+      required: true
+      example: [123456, 789012]
+      selector:
+        object:
+
+get_bonus_products:
+
+get_koopjes:
+  fields:
+    postal_code:
+      required: true
+      example: "3521GZ"
+      selector:
+        text:
+
+get_member:
+
+get_receipts:
+
+get_receipt:
+  fields:
+    transaction_id:
+      required: true
+      selector:
+        text:
+
+get_shopping_lists:
+  fields:
+    product_id:
+      selector:
+        number:
+
+get_shopping_list_items:
+  fields:
+    list_id:
+      required: true
+      selector:
+        text:
+
+add_product_to_shopping_list:
+  fields:
+    product_id:
+      required: true
+      selector:
+        number:
+    quantity:
+      default: 1
+      selector:
+        number:
+          min: 1
+
+add_free_text_to_shopping_list:
+  fields:
+    name:
+      required: true
+      selector:
+        text:
+    quantity:
+      default: 1
+      selector:
+        number:
+          min: 1
+
+add_to_shopping_list:
+  fields:
+    list_id:
+      selector:
+        text:
+    product_id:
+      selector:
+        number:
+    name:
+      selector:
+        text:
+    quantity:
+      default: 1
+      selector:
+        number:
+
+clear_shopping_list:
+  fields:
+    list_id:
+      required: true
+      selector:
+        text:
+
+check_shopping_list_item:
+  fields:
+    list_id:
+      required: true
+      selector:
+        text:
+    item_id:
+      required: true
+      selector:
+        text:
+    checked:
+      required: true
+      selector:
+        boolean:
+
+get_order:
+
+get_order_details:
+  fields:
+    order_id:
+      required: true
+      selector:
+        number:
+
+get_order_summary:
+
+add_to_order:
+  fields:
+    product_id:
+      required: true
+      selector:
+        number:
+    quantity:
+      default: 1
+      selector:
+        number:
+
+remove_from_order:
+  fields:
+    product_id:
+      required: true
+      selector:
+        number:
+
+update_order_item:
+  fields:
+    product_id:
+      required: true
+      selector:
+        number:
+    quantity:
+      required: true
+      selector:
+        number:
+
+reopen_order:
+  fields:
+    order_id:
+      required: true
+      selector:
+        number:
+
+revert_order:
+  fields:
+    order_id:
+      required: true
+      selector:
+        number:
+
+get_fulfillments:
+
+search_stores:
+  fields:
+    postal_code:
+      selector:
+        text:
+    query:
+      selector:
+        text:
