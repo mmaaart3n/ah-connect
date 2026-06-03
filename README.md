@@ -98,7 +98,7 @@ See [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
 ### 1.0.0
 
 - First HACS release of rebuilt **AH Connect** (`ah_connect`)
-- Replaces legacy `ah_shopping` / v0.2.0 tag (do not use v0.2.0)
+- Replaces the pre-1.0.0 integration; do not use tag v0.2.0
 
 ### 0.1.0 (development)
 

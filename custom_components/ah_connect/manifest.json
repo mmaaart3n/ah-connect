@@ -6,6 +6,6 @@
   "documentation": "https://github.com/mmaaart3n/ah-connect",
   "issue_tracker": "https://github.com/mmaaart3n/ah-connect/issues",
   "iot_class": "cloud_polling",
-  "version": "1.0.0",
-  "requirements": []
+  "requirements": [],
+  "version": "1.0.0"
 }
