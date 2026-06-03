@@ -1,21 +1,29 @@
 # AH Shopping
 
-Albert Heijn integration for Home Assistant. Search products, manage a local shopping list, and view receipt data via the unofficial Appie mobile API.
+AH Shopping is a Home Assistant custom integration for Albert Heijn product search, local shopping lists and receipt sensors.
 
-**Requires Home Assistant 2024.1 or newer.**
+This integration uses the unofficial Appie mobile API and may break if Albert Heijn changes its private endpoints.
 
 ## Features
 
-- Product search via service call
-- Local shopping list stored in Home Assistant
-- Receipt sensors (authenticated mode)
-- Automatic token refresh
-- Dutch and English UI translations
+- Search Albert Heijn products
+- Manage a local Home Assistant shopping list
+- Optional receipt sensors for authenticated users
+- Services for automations and scripts
 
-## Quick start
+## Important
 
-See [docs/INSTALLATION.md](docs/INSTALLATION.md) for setup instructions.
+Checkout/order placement is not included in the MVP.
 
-## Disclaimer
+## Installation
 
-This integration uses an **unofficial, undocumented API**. Albert Heijn may change or block access at any time. See [docs/SECURITY_AND_LIMITATIONS.md](docs/SECURITY_AND_LIMITATIONS.md).
+Add as HACS custom repository:
+
+- **Repository URL:** https://github.com/mmaaart3n/ah-connect
+- **Category:** Integration
+
+See [README.md](README.md) for full setup instructions.
+
+## Issues
+
+https://github.com/mmaaart3n/ah-connect/issues

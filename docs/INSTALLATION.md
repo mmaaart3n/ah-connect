@@ -10,7 +10,9 @@
 
 1. Open **HACS** in Home Assistant.
 2. Ga naar **Integrations** (drie puntjes → Custom repositories).
-3. Voeg de repository URL toe en selecteer category **Integration**.
+3. Voeg de repository URL toe:
+   - **URL:** `https://github.com/mmaaart3n/ah-connect`
+   - **Category:** Integration
 4. Zoek **AH Shopping** en installeer.
 5. **Herstart Home Assistant** (verplicht na installatie).
 6. Ga naar **Instellingen → Apparaten & services → Integratie toevoegen**.

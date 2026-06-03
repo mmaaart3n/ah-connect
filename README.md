@@ -5,6 +5,8 @@
 
 Home Assistant custom integration voor **Albert Heijn**, gebouwd op de onofficiële Appie mobiele API.
 
+> **Waarschuwing:** Dit is een **onofficiële, ongedocumenteerde API**. Albert Heijn kan endpoints op elk moment wijzigen of blokkeren. Gebruik op eigen risico. **Geen checkout of bestellingen** in de MVP.
+
 ## Functies (MVP)
 
 | Functie | Anonymous | Authenticated |
@@ -19,16 +21,31 @@ Home Assistant custom integration voor **Albert Heijn**, gebouwd op de onoffici�
 
 ### Via HACS (aanbevolen)
 
-1. Voeg deze repository toe als [custom repository](https://hacs.xyz/docs/faq/custom_repositories/) in HACS (category: Integration).
-2. Installeer **AH Shopping**.
-3. Herstart Home Assistant.
-4. Ga naar **Instellingen → Apparaten & services → Integratie toevoegen** en zoek op **AH Shopping**.
+1. Open **HACS → Integrations** (drie puntjes → **Custom repositories**).
+2. Voeg toe:
+   - **Repository URL:** `https://github.com/mmaaart3n/ah-connect`
+   - **Category:** Integration
+3. Zoek **AH Shopping** en installeer.
+4. **Herstart Home Assistant.**
+5. Ga naar **Instellingen → Apparaten & services → Integratie toevoegen** en zoek op **AH Shopping**.
 
 Zie [docs/INSTALLATION.md](docs/INSTALLATION.md) voor gedetailleerde instructies.
 
 ### Handmatig
 
-Kopieer de map `custom_components/ah_shopping` naar je Home Assistant `custom_components` directory en herstart.
+1. Download of clone [https://github.com/mmaaart3n/ah-connect](https://github.com/mmaaart3n/ah-connect)
+2. Kopieer `custom_components/ah_shopping/` naar je Home Assistant `config/custom_components/` map
+3. Herstart Home Assistant
+4. Voeg de integratie toe via de UI
+
+## Configuratie
+
+Alle configuratie verloopt via de **Home Assistant UI** (geen YAML vereist):
+
+1. **Config flow** – kies Anonymous of Authenticated (OAuth-code)
+2. **Options flow** – scan interval, max zoekresultaten, bon-sensoren aan/uit
+
+Zie [docs/AUTHENTICATION.md](docs/AUTHENTICATION.md) voor OAuth-instructies.
 
 ## Snel starten
 
@@ -76,27 +93,46 @@ Zie [docs/SERVICES.md](docs/SERVICES.md) voor alle details.
 
 Zie [examples/automations.yaml](examples/automations.yaml).
 
+## Security & beperkingen
+
+- Tokens worden nooit gelogd of getoond in diagnostics
+- Geen checkout of order placement
+- Rate limiting en retry/backoff ingebouwd
+- Onofficiële API – geen garantie op stabiliteit
+
+Zie [docs/SECURITY_AND_LIMITATIONS.md](docs/SECURITY_AND_LIMITATIONS.md).
+
+## Troubleshooting
+
+Zie [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md).
+
 ## Documentatie
 
 - [Installatie](docs/INSTALLATION.md)
 - [Authenticatie](docs/AUTHENTICATION.md)
 - [Services](docs/SERVICES.md)
 - [API Discovery](docs/AH_API_DISCOVERY.md)
-- [Troubleshooting](docs/TROUBLESHOOTING.md)
-- [Security & Limitations](docs/SECURITY_AND_LIMITATIONS.md)
+- [GitHub repository setup](docs/GITHUB_REPOSITORY_SETUP.md)
 - [Roadmap](docs/ROADMAP.md)
+
+## Issues & support
+
+Problemen of vragen? Open een issue:
+
+**https://github.com/mmaaart3n/ah-connect/issues**
 
 ## Ontwikkeling
 
 ```bash
-# Tests draaien
+python3.12 -m venv .venv
+source .venv/bin/activate
 pip install pytest pytest-asyncio aiohttp voluptuous
-pytest tests/ -v
+PYTHONPATH=. pytest tests/ -v
 ```
 
 ## Disclaimer
 
-Deze integratie gebruikt een **onofficiële, gedocumenteerde API**. Albert Heijn kan toegang op elk moment wijzigen of blokkeren. Gebruik op eigen risico. Er worden **geen bestellingen geplaatst** in de MVP.
+Deze integratie gebruikt een **onofficiële, ongedocumenteerde API**. Albert Heijn kan toegang op elk moment wijzigen of blokkeren. Gebruik op eigen risico. Er worden **geen bestellingen geplaatst** in de MVP.
 
 ## Licentie
 
