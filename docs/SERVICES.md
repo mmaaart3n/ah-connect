@@ -2,6 +2,37 @@
 
 Alle services zijn beschikbaar onder domain `ah_shopping`.
 
+> API gebaseerd op [appie-go](https://github.com/gwillem/appie-go) als Python-referentie (v0.2.0).
+
+## Events
+
+| Event | Beschrijving |
+|-------|-------------|
+| `ah_shopping_products_found` | Zoekresultaten (legacy) |
+| `ah_shopping_result` | Algemeen resultaat `{action, ...}` |
+| `ah_shopping_list_updated` | Lokale lijst gewijzigd |
+
+## Nieuwe services (v0.2.0)
+
+| Service | Modus | Beschrijving |
+|---------|-------|-------------|
+| `get_product` | anonymous+ | Productdetail |
+| `get_bonus_products` | anonymous+ | Bonusproducten |
+| `get_receipt` | authenticated | Bon detail |
+| `get_shopping_lists` | authenticated | AH-lijsten |
+| `get_shopping_list_items` | authenticated | Items in lijst |
+| `add_product_to_shopping_list` | authenticated | Product naar AH-lijst |
+| `add_free_text_to_shopping_list` | authenticated | Vrije tekst naar AH-lijst |
+| `clear_shopping_list` | authenticated | AH-lijst leegmaken (beperkt) |
+| `check_shopping_list_item` | authenticated | Item afvinken |
+| `get_order` | experimental | Actief mandje |
+| `get_order_summary` | experimental | Mandje totalen |
+| `add_to_order` / `remove_from_order` / `update_order_item` | experimental | Mandje wijzigen |
+
+Lokale lijst: `add_to_list` (alias `add_to_local_list`), `remove_from_list`, `clear_list`, `get_list`, `export_list_to_todo`.
+
+**Geen** `place_order`, `checkout`, of betaling-services.
+
 ## search_products
 
 Zoek producten op Albert Heijn.
