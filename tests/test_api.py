@@ -21,7 +21,10 @@ def mock_auth():
 @pytest.fixture
 def api_client(mock_auth):
     hass = MagicMock()
-    return AhApiClient(hass, mock_auth)
+    entry = MagicMock()
+    entry.options = {}
+    entry.data = {}
+    return AhApiClient(hass, mock_auth, entry)
 
 
 class TestExtractProductList:

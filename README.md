@@ -3,7 +3,7 @@
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/integration)
 [![Validate](https://github.com/mmaaart3n/ah-connect/actions/workflows/validate.yml/badge.svg)](https://github.com/mmaaart3n/ah-connect/actions/workflows/validate.yml)
 
-Home Assistant custom integration voor **Albert Heijn**, gebouwd op de onofficiële Appie mobiele API.
+Home Assistant custom integration voor **Albert Heijn**, gebouwd op de onofficiële Appie mobiele API. Technische referentie: [appie-go](https://github.com/gwillem/appie-go) (Python-port, geen Go-runtime).
 
 > **Waarschuwing:** Dit is een **onofficiële, ongedocumenteerde API**. Albert Heijn kan endpoints op elk moment wijzigen of blokkeren. Gebruik op eigen risico. **Geen checkout of bestellingen** in de MVP.
 
@@ -113,6 +113,7 @@ Zie [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md).
 - [Services](docs/SERVICES.md)
 - [API Discovery](docs/AH_API_DISCOVERY.md)
 - [GitHub repository setup](docs/GITHUB_REPOSITORY_SETUP.md)
+- [appie-go referentie](docs/APPIE_GO_REFERENCE.md)
 - [Roadmap](docs/ROADMAP.md)
 
 ## Issues & support

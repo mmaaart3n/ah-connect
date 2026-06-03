@@ -1,6 +1,14 @@
 """Tests for AH data models."""
 
-from custom_components.ah_shopping.models import AhProduct, AhReceipt, ShoppingListItem
+from custom_components.ah_shopping.models import (
+    AhOrder,
+    AhOrderItem,
+    AhProduct,
+    AhReceipt,
+    AhShoppingList,
+    AhShoppingListItem,
+    ShoppingListItem,
+)
 
 
 class TestAhProduct:
@@ -53,6 +61,33 @@ class TestAhReceipt:
         assert receipt.total == 45.67
         assert receipt.store_name == "AH Amsterdam"
         assert receipt.date is not None
+
+
+class TestAhShoppingListItem:
+    def test_from_api(self):
+        item = AhShoppingListItem.from_api(
+            {"id": "abc", "productId": 99, "quantity": 2}
+        )
+        assert item.item_id == "abc"
+        assert item.product_id == 99
+        assert item.quantity == 2
+
+
+class TestAhOrder:
+    def test_from_summary_api(self):
+        order = AhOrder.from_summary_api(
+            {
+                "id": 42,
+                "state": "OPEN",
+                "totalPrice": {"priceTotalPayable": 12.5, "priceDiscount": 1.0},
+                "orderedProducts": [
+                    {"quantity": 1, "product": {"webshopId": 1, "title": "Melk"}}
+                ],
+            }
+        )
+        assert order.order_id == "42"
+        assert order.total_price == 12.5
+        assert order.item_count == 1
 
 
 class TestShoppingListItem:

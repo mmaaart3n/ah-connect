@@ -21,3 +21,11 @@ class AhRateLimitError(AhApiError):
 
 class AhUnavailableError(AhApiError):
     """Raised when the AH API is temporarily unavailable."""
+
+
+class AhNotImplementedError(AhApiError):
+    """Raised when an API method is not yet implemented."""
+
+
+class AhExperimentalFeatureDisabled(AhError):
+    """Raised when an experimental feature is disabled in options."""

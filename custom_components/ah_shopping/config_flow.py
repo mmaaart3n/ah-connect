@@ -11,17 +11,25 @@ from homeassistant.data_entry_flow import FlowResult
 
 from .auth import AhAuthManager
 from .const import (
+    CLIENT_ID,
     CONF_ANONYMOUS,
+    CONF_CLIENT_ID,
+    CONF_ENABLE_BONUS_SENSOR,
     CONF_ENABLE_RECEIPTS,
-    CONF_EXPERIMENTAL_CART,
+    CONF_ENABLE_REMOTE_SHOPPING_LIST,
+    CONF_EXPERIMENTAL_CHECKOUT,
+    CONF_EXPERIMENTAL_ORDER,
     CONF_MAX_SEARCH_RESULTS,
     CONF_SCAN_INTERVAL,
+    DEFAULT_ENABLE_BONUS_SENSOR,
     DEFAULT_ENABLE_RECEIPTS,
-    DEFAULT_EXPERIMENTAL_CART,
+    DEFAULT_ENABLE_REMOTE_SHOPPING_LIST,
+    DEFAULT_EXPERIMENTAL_CHECKOUT,
+    DEFAULT_EXPERIMENTAL_ORDER,
     DEFAULT_MAX_SEARCH_RESULTS,
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
-    OAUTH_AUTHORIZE_URL,
+    OAUTH_LOGIN_URL,
 )
 from .exceptions import AhAuthError, AhError
 
@@ -30,19 +38,12 @@ class AhConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     VERSION = 1
 
-    def __init__(self) -> None:
-        """Initialize config flow."""
-        self._auth_mode: str | None = None
-
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
-        """Handle the initial step – choose auth mode."""
-        errors: dict[str, str] = {}
-
+        """Choose anonymous or authenticated mode."""
         if user_input is not None:
-            self._auth_mode = user_input["auth_mode"]
-            if self._auth_mode == "anonymous":
+            if user_input["auth_mode"] == "anonymous":
                 return await self._create_anonymous_entry()
             return await self.async_step_oauth()
 
@@ -52,8 +53,8 @@ class AhConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 {
                     vol.Required("auth_mode"): vol.In(
                         {
-                            "anonymous": "Anonymous (product search only)",
-                            "authenticated": "Authenticated (receipts + search)",
+                            "anonymous": "anonymous",
+                            "authenticated": "authenticated",
                         }
                     )
                 }
@@ -61,33 +62,30 @@ class AhConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
     async def _create_anonymous_entry(self) -> FlowResult:
-        """Create an anonymous config entry."""
+        """Create anonymous entry after token check."""
         await self.async_set_unique_id("ah_shopping_anonymous")
         self._abort_if_unique_id_configured()
 
-        # Verify anonymous token works
         try:
-            entry_data = {CONF_ANONYMOUS: True}
-            # Temporary entry-like object for auth test
             temp_entry = type(
                 "TempEntry",
                 (),
-                {"data": entry_data, "entry_id": "temp"},
+                {"data": {CONF_ANONYMOUS: True, CONF_CLIENT_ID: CLIENT_ID}, "entry_id": "temp"},
             )()
             auth = AhAuthManager(self.hass, temp_entry)  # type: ignore[arg-type]
             await auth.get_access_token()
-        except AhError as err:
+        except AhError:
             return self.async_abort(reason="cannot_connect")
 
         return self.async_create_entry(
             title="AH Shopping (Anonymous)",
-            data={CONF_ANONYMOUS: True},
+            data={CONF_ANONYMOUS: True, CONF_CLIENT_ID: CLIENT_ID},
         )
 
     async def async_step_oauth(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
-        """Handle OAuth code input."""
+        """OAuth authorization code."""
         errors: dict[str, str] = {}
 
         if user_input is not None:
@@ -99,7 +97,13 @@ class AhConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     temp_entry = type(
                         "TempEntry",
                         (),
-                        {"data": {CONF_ANONYMOUS: False}, "entry_id": "temp"},
+                        {
+                            "data": {
+                                CONF_ANONYMOUS: False,
+                                CONF_CLIENT_ID: CLIENT_ID,
+                            },
+                            "entry_id": "temp",
+                        },
                     )()
                     auth = AhAuthManager(self.hass, temp_entry)  # type: ignore[arg-type]
                     token_data = await auth.setup_authenticated(code)
@@ -109,10 +113,7 @@ class AhConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
                     return self.async_create_entry(
                         title="AH Shopping",
-                        data={
-                            CONF_ANONYMOUS: False,
-                            **token_data,
-                        },
+                        data={CONF_ANONYMOUS: False, **token_data},
                     )
                 except AhAuthError:
                     errors["base"] = "invalid_auth_code"
@@ -121,12 +122,8 @@ class AhConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         return self.async_show_form(
             step_id="oauth",
-            data_schema=vol.Schema(
-                {vol.Required("auth_code"): str}
-            ),
-            description_placeholders={
-                "oauth_url": OAUTH_AUTHORIZE_URL,
-            },
+            data_schema=vol.Schema({vol.Required("auth_code"): str}),
+            description_placeholders={"oauth_url": OAUTH_LOGIN_URL},
             errors=errors,
         )
 
@@ -135,21 +132,20 @@ class AhConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     def async_get_options_flow(
         config_entry: config_entries.ConfigEntry,
     ) -> AhOptionsFlow:
-        """Return the options flow handler."""
+        """Return options flow."""
         return AhOptionsFlow(config_entry)
 
 
 class AhOptionsFlow(config_entries.OptionsFlow):
-    """Handle options for AH Shopping."""
+    """Integration options."""
 
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
-        """Initialize options flow."""
         self.config_entry = config_entry
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
-        """Manage integration options."""
+        """Manage options."""
         if user_input is not None:
             return self.async_create_entry(title="", data=user_input)
 
@@ -160,9 +156,7 @@ class AhOptionsFlow(config_entries.OptionsFlow):
                 {
                     vol.Optional(
                         CONF_SCAN_INTERVAL,
-                        default=options.get(
-                            CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL
-                        ),
+                        default=options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL),
                     ): vol.All(vol.Coerce(int), vol.Range(min=300, max=86400)),
                     vol.Optional(
                         CONF_MAX_SEARCH_RESULTS,
@@ -172,14 +166,31 @@ class AhOptionsFlow(config_entries.OptionsFlow):
                     ): vol.All(vol.Coerce(int), vol.Range(min=1, max=50)),
                     vol.Optional(
                         CONF_ENABLE_RECEIPTS,
+                        default=options.get(CONF_ENABLE_RECEIPTS, DEFAULT_ENABLE_RECEIPTS),
+                    ): bool,
+                    vol.Optional(
+                        CONF_ENABLE_REMOTE_SHOPPING_LIST,
                         default=options.get(
-                            CONF_ENABLE_RECEIPTS, DEFAULT_ENABLE_RECEIPTS
+                            CONF_ENABLE_REMOTE_SHOPPING_LIST,
+                            DEFAULT_ENABLE_REMOTE_SHOPPING_LIST,
                         ),
                     ): bool,
                     vol.Optional(
-                        CONF_EXPERIMENTAL_CART,
+                        CONF_ENABLE_BONUS_SENSOR,
                         default=options.get(
-                            CONF_EXPERIMENTAL_CART, DEFAULT_EXPERIMENTAL_CART
+                            CONF_ENABLE_BONUS_SENSOR, DEFAULT_ENABLE_BONUS_SENSOR
+                        ),
+                    ): bool,
+                    vol.Optional(
+                        CONF_EXPERIMENTAL_ORDER,
+                        default=options.get(
+                            CONF_EXPERIMENTAL_ORDER, DEFAULT_EXPERIMENTAL_ORDER
+                        ),
+                    ): bool,
+                    vol.Optional(
+                        CONF_EXPERIMENTAL_CHECKOUT,
+                        default=options.get(
+                            CONF_EXPERIMENTAL_CHECKOUT, DEFAULT_EXPERIMENTAL_CHECKOUT
                         ),
                     ): bool,
                 }

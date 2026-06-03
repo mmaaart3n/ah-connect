@@ -20,6 +20,37 @@
 - Open developer tools (F12) → Network tab → volg redirects.
 - De code staat in `appie://login-exit?code=XXXX`.
 
+### Console: `Failed to launch 'appie://login-exit?code=...'`
+
+**Dit is normaal en betekent meestal succes.** De browser kan het `appie://`-protocol niet openen zonder de Appie-app.
+
+1. Kopieer de UUID uit de foutmelding (alles na `code=`).
+2. Plak direct in Home Assistant → AH Shopping config flow → **Autorisatiecode**.
+3. Wacht niet te lang — codes verlopen snel.
+
+Voorbeeld uit console:
+
+```
+appie://login-exit?code=4154ab6d-a4e9-4868-a866-94af727d9d79
+```
+
+→ plak: `4154ab6d-a4e9-4868-a866-94af727d9d79`
+
+### Console: `POST .../login/api/login/mfa 400 (Bad Request)`
+
+Dit komt van de **AH login-pagina** (`login.ah.nl`), niet van de Home Assistant-integratie.
+
+Mogelijke oorzaken:
+
+- Verkeerde of verlopen MFA/2FA-code
+- Sessie verlopen — begin opnieuw via de OAuth authorize URL
+- Adblocker/privacy-extensie die cookies blokkeert
+- Inloggen in meerdere tabs tegelijk
+
+**Als je daarna wél `appie://login-exit?code=...` ziet, negeer de MFA 400** en gebruik die code in Home Assistant.
+
+Probeer anders: incognito venster, andere browser, of tijdelijk extensies uitzetten voor `login.ah.nl`.
+
 ## Services
 
 ### search_products geeft geen resultaten

@@ -25,23 +25,37 @@ Vereist voor bon-sensoren en toekomstige functies (remote lijst, mandje).
 
 ### Stap 1: Authorize URL openen
 
+Open deze URL in een **desktop browser** (Chrome, Firefox, Safari):
+
 ```
-https://login.ah.nl/secure/oauth/authorize?client_id=appie&redirect_uri=appie://login-exit&response_type=code
+https://login.ah.nl/login?client_id=appie-ios&response_type=code&redirect_uri=appie://login-exit
 ```
 
-Log in met je Albert Heijn / Mijn AH account.
+> Legacy URL (oudere gist): `client_id=appie` op `/secure/oauth/authorize` – werkt mogelijk nog, maar de integratie gebruikt standaard **appie-ios** (referentie: [appie-go](https://github.com/gwillem/appie-go)).
+
+Log in met je Albert Heijn / Mijn AH account (inclusief MFA/2FA indien gevraagd).
+
+> **User-Agent (optioneel):** De [Appie API gist](https://gist.github.com/jabbink/8bfa44bdfc535d696b340c46d228fdd1) adviseert `User-Agent: Appie/8.22.3` voor API-calls. Voor de **browser-login** is dat meestal niet nodig. Alleen bij problemen: gebruik een User-Agent-switcher extensie en zet tijdelijk `Appie/8.22.3` voor `login.ah.nl`.
 
 ### Stap 2: Authorization code kopiëren
 
-Na succesvolle login word je doorgestuurd naar een URL als:
+Na succesvolle login word je doorgestuurd. In de console of op het scherm zie je vaak:
 
 ```
-appie://login-exit?code=AUTHORIZATION_CODE_HERE
+Failed to launch 'appie://login-exit?code=XXXXXXXX' because the scheme does not have a registered handler.
 ```
 
-De browser toont mogelijk een foutmelding ("kan pagina niet openen") — dat is normaal. Kopieer de `code` parameter uit de URL-balk.
+**Dat is geen fout — dat betekent dat de login gelukt is.** Je computer heeft geen Appie-app om `appie://` te openen; de code staat in die URL.
 
-> **Tip:** Op Android/iOS met de Appie app geïnstalleerd opent de redirect in de app. Gebruik in dat geval een desktop browser of kopieer de code uit de redirect-URL via developer tools.
+Kopieer alleen het deel **na** `code=`:
+
+```
+4154ab6d-a4e9-4868-a866-94af727d9d79
+```
+
+De code is **kort geldig** (enkele minuten). Plak hem direct in Home Assistant.
+
+> **Tip:** Staat de code niet in de adresbalk? Open F12 → **Console** of **Network** en zoek naar `appie://login-exit?code=`.
 
 ### Stap 3: Code invoeren in config flow
 

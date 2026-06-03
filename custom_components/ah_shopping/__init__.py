@@ -20,7 +20,7 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up AH Shopping from a config entry."""
     auth = AhAuthManager(hass, entry)
-    api = AhApiClient(hass, auth)
+    api = AhApiClient(hass, auth, entry)
     storage = ShoppingListStorage(hass, entry.entry_id)
     await storage.async_load()
 

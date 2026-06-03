@@ -16,7 +16,13 @@ from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN
+from .const import (
+    CONF_ENABLE_BONUS_SENSOR,
+    CONF_ENABLE_RECEIPTS,
+    CONF_ENABLE_REMOTE_SHOPPING_LIST,
+    CONF_EXPERIMENTAL_ORDER,
+    DOMAIN,
+)
 from .coordinator import AhDataCoordinator
 from .storage import ShoppingListStorage
 
@@ -36,12 +42,24 @@ async def async_setup_entry(
     ]
 
     if not auth.is_anonymous:
-        entities.extend(
-            [
-                AhLastReceiptTotalSensor(entry, coordinator),
-                AhLastReceiptDateSensor(entry, coordinator),
-            ]
-        )
+        if entry.options.get(CONF_ENABLE_RECEIPTS, True):
+            entities.extend(
+                [
+                    AhLastReceiptTotalSensor(entry, coordinator),
+                    AhLastReceiptDateSensor(entry, coordinator),
+                ]
+            )
+        if entry.options.get(CONF_ENABLE_REMOTE_SHOPPING_LIST, False):
+            entities.append(AhRemoteShoppingListCountSensor(entry, coordinator))
+        if entry.options.get(CONF_EXPERIMENTAL_ORDER, False):
+            entities.extend(
+                [
+                    AhOrderTotalSensor(entry, coordinator),
+                    AhOrderItemCountSensor(entry, coordinator),
+                ]
+            )
+        if entry.options.get(CONF_ENABLE_BONUS_SENSOR, False):
+            entities.append(AhBonusProductCountSensor(entry, coordinator))
 
     async_add_entities(entities)
 
@@ -130,6 +148,94 @@ class AhLastReceiptDateSensor(CoordinatorEntity[AhDataCoordinator], SensorEntity
         """Return the last receipt date."""
         last = self.coordinator.data.get("last_receipt") if self.coordinator.data else None
         return last.date if last else None
+
+
+class AhRemoteShoppingListCountSensor(CoordinatorEntity[AhDataCoordinator], SensorEntity):
+    """Remote AH shopping list item count."""
+
+    _attr_has_entity_name = True
+    _attr_name = "Remote shopping list count"
+    _attr_icon = "mdi:clipboard-list"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_native_unit_of_measurement = "items"
+
+    def __init__(self, entry: ConfigEntry, coordinator: AhDataCoordinator) -> None:
+        super().__init__(coordinator)
+        self._attr_unique_id = f"{entry.entry_id}_remote_list_count"
+        self._attr_device_info = _device_info(entry)
+
+    @property
+    def native_value(self) -> int | None:
+        if self.coordinator.data:
+            return self.coordinator.data.get("remote_list_count")
+        return None
+
+
+class AhOrderTotalSensor(CoordinatorEntity[AhDataCoordinator], SensorEntity):
+    """Active order total (experimental)."""
+
+    _attr_has_entity_name = True
+    _attr_name = "Order total"
+    _attr_icon = "mdi:cart-outline"
+    _attr_state_class = SensorStateClass.TOTAL
+
+    def __init__(self, entry: ConfigEntry, coordinator: AhDataCoordinator) -> None:
+        super().__init__(coordinator)
+        self._attr_unique_id = f"{entry.entry_id}_order_total"
+        self._attr_device_info = _device_info(entry)
+
+    @property
+    def native_value(self) -> float | None:
+        if self.coordinator.data:
+            return self.coordinator.data.get("order_total")
+        return None
+
+    @property
+    def native_unit_of_measurement(self) -> str:
+        return "EUR"
+
+
+class AhOrderItemCountSensor(CoordinatorEntity[AhDataCoordinator], SensorEntity):
+    """Active order item count (experimental)."""
+
+    _attr_has_entity_name = True
+    _attr_name = "Order item count"
+    _attr_icon = "mdi:cart-plus"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_native_unit_of_measurement = "items"
+
+    def __init__(self, entry: ConfigEntry, coordinator: AhDataCoordinator) -> None:
+        super().__init__(coordinator)
+        self._attr_unique_id = f"{entry.entry_id}_order_item_count"
+        self._attr_device_info = _device_info(entry)
+
+    @property
+    def native_value(self) -> int | None:
+        if self.coordinator.data:
+            return self.coordinator.data.get("order_item_count")
+        return None
+
+
+class AhBonusProductCountSensor(CoordinatorEntity[AhDataCoordinator], SensorEntity):
+    """Count of bonus products (can be slow to refresh)."""
+
+    _attr_has_entity_name = True
+    _attr_name = "Bonus product count"
+    _attr_icon = "mdi:sale"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_native_unit_of_measurement = "products"
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+
+    def __init__(self, entry: ConfigEntry, coordinator: AhDataCoordinator) -> None:
+        super().__init__(coordinator)
+        self._attr_unique_id = f"{entry.entry_id}_bonus_count"
+        self._attr_device_info = _device_info(entry)
+
+    @property
+    def native_value(self) -> int | None:
+        if self.coordinator.data:
+            return self.coordinator.data.get("bonus_product_count")
+        return None
 
 
 def _device_info(entry: ConfigEntry) -> dict[str, Any]:

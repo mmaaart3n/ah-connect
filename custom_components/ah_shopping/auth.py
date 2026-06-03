@@ -14,12 +14,15 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .const import (
+    APPLICATION_HEADER,
     AUTH_ANONYMOUS_TOKEN,
     AUTH_REFRESH,
     AUTH_TOKEN,
     CLIENT_ID,
+    CLIENT_VERSION,
     CONF_ACCESS_TOKEN,
     CONF_ANONYMOUS,
+    CONF_CLIENT_ID,
     CONF_EXPIRES_AT,
     CONF_REFRESH_TOKEN,
     DEFAULT_TIMEOUT,
@@ -60,6 +63,11 @@ class AhAuthManager:
         """Return True if user is authenticated (not anonymous)."""
         return not self.is_anonymous and bool(self._entry.data.get(CONF_ACCESS_TOKEN))
 
+    @property
+    def client_id(self) -> str:
+        """OAuth client ID used for this entry."""
+        return str(self._entry.data.get(CONF_CLIENT_ID) or CLIENT_ID)
+
     async def _throttle(self) -> None:
         """Enforce minimum interval between auth requests."""
         elapsed = time.monotonic() - self._last_request
@@ -72,6 +80,10 @@ class AhAuthManager:
         return {
             "User-Agent": USER_AGENT,
             "Content-Type": "application/json",
+            "Accept": "application/json",
+            "x-application": APPLICATION_HEADER,
+            "x-client-name": self.client_id,
+            "x-client-version": CLIENT_VERSION,
         }
 
     async def _request(
@@ -146,7 +158,7 @@ class AhAuthManager:
         data = await self._request(
             "POST",
             AUTH_ANONYMOUS_TOKEN,
-            json_body={"clientId": CLIENT_ID},
+            json_body={"clientId": self.client_id},
         )
         if "access_token" not in data:
             raise AhAuthError("Anonymous token response missing access_token")
@@ -158,7 +170,7 @@ class AhAuthManager:
         data = await self._request(
             "POST",
             AUTH_TOKEN,
-            json_body={"clientId": CLIENT_ID, "code": code.strip()},
+            json_body={"clientId": self.client_id, "code": code.strip()},
         )
         return self._parse_token_response(data)
 
@@ -174,7 +186,7 @@ class AhAuthManager:
         data = await self._request(
             "POST",
             AUTH_REFRESH,
-            json_body={"clientId": CLIENT_ID, "refreshToken": refresh_token},
+            json_body={"clientId": self.client_id, "refreshToken": refresh_token},
         )
         token_data = self._parse_token_response(data)
         await self._persist_tokens(token_data)
@@ -210,4 +222,5 @@ class AhAuthManager:
         """Complete OAuth setup and persist tokens."""
         token_data = await self.exchange_auth_code(code)
         token_data[CONF_ANONYMOUS] = False
+        token_data[CONF_CLIENT_ID] = self.client_id
         return token_data
