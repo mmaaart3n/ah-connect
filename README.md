@@ -1,7 +1,7 @@
 # AH Shopping – Home Assistant Integration
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/integration)
-[![Validate](https://github.com/your-org/ah-connect/actions/workflows/validate.yml/badge.svg)](https://github.com/your-org/ah-connect/actions/workflows/validate.yml)
+[![Validate](https://github.com/mmaaart3n/ah-connect/actions/workflows/validate.yml/badge.svg)](https://github.com/mmaaart3n/ah-connect/actions/workflows/validate.yml)
 
 Home Assistant custom integration voor **Albert Heijn**, gebouwd op de onofficiële Appie mobiele API.
 
