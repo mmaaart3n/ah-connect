@@ -1,0 +1,117 @@
+# Voorbeeldautomatiseringen voor AH Shopping
+# Kopieer naar automations.yaml of importeer via de HA UI
+
+# --- Product zoeken via input helper ---
+- id: ah_search_on_input
+  alias: "AH – Zoek product bij input wijziging"
+  description: Zoekt AH producten wanneer input_text.ah_zoekterm wijzigt
+  trigger:
+    - platform: state
+      entity_id: input_text.ah_zoekterm
+  condition:
+    - condition: template
+      value_template: "{{ trigger.to_state.state | length > 2 }}"
+  action:
+    - service: ah_shopping.search_products
+      data:
+        query: "{{ states('input_text.ah_zoekterm') }}"
+        limit: 5
+
+# --- Zoekresultaat verwerken ---
+- id: ah_add_first_result_to_list
+  alias: "AH – Voeg eerste zoekresultaat toe aan lijst"
+  description: Luistert naar search event en voegt eerste product toe
+  trigger:
+    - platform: event
+      event_type: ah_shopping_products_found
+  condition:
+    - condition: template
+      value_template: "{{ trigger.event.data.count > 0 }}"
+  action:
+    - service: ah_shopping.add_to_list
+      data:
+        webshop_id: "{{ trigger.event.data.products[0].webshop_id }}"
+        title: "{{ trigger.event.data.products[0].title }}"
+        quantity: 1
+    - service: persistent_notification.create
+      data:
+        title: "AH Shopping"
+        message: >-
+          {{ trigger.event.data.products[0].title }} toegevoegd aan lijst.
+
+# --- Notificatie bij lijst update ---
+- id: ah_list_updated_notification
+  alias: "AH – Notificatie bij lijst wijziging"
+  trigger:
+    - platform: event
+      event_type: ah_shopping_list_updated
+  action:
+    - service: persistent_notification.create
+      data:
+        title: "AH Boodschappenlijst"
+        message: >-
+          Lijst bevat nu {{ states('sensor.ah_shopping_list_count') }} items.
+
+# --- Export lijst naar todo elke zondag ---
+- id: ah_export_list_weekly
+  alias: "AH – Exporteer lijst naar todo (zondag)"
+  trigger:
+    - platform: time
+      at: "09:00:00"
+  condition:
+    - condition: time
+      weekday:
+        - sun
+    - condition: numeric_state
+      entity_id: sensor.ah_shopping_list_count
+      above: 0
+  action:
+    - service: ah_shopping.export_list_to_todo
+      data:
+        todo_entity_id: todo.shopping_list
+
+# --- Bon alert bij hoog bedrag (authenticated) ---
+- id: ah_high_receipt_alert
+  alias: "AH – Alert bij bon boven €100"
+  description: Vereist authenticated mode met receipt sensors
+  trigger:
+    - platform: state
+      entity_id: sensor.ah_last_receipt_total
+  condition:
+    - condition: numeric_state
+      entity_id: sensor.ah_last_receipt_total
+      above: 100
+  action:
+    - service: notify.persistent_notification
+      data:
+        title: "AH Bon alert"
+        message: >-
+          Laatste bon: €{{ states('sensor.ah_last_receipt_total') }}
+          op {{ states('sensor.ah_last_receipt_date') }}
+
+# --- Dagelijkse bon refresh (authenticated) ---
+- id: ah_refresh_receipts_daily
+  alias: "AH – Dagelijkse bon refresh"
+  trigger:
+    - platform: time
+      at: "07:00:00"
+  action:
+    - service: ah_shopping.refresh_receipts
+
+# --- Voice assistant helper: voeg item toe ---
+- id: ah_voice_add_item
+  alias: "AH – Voeg item toe via script"
+  description: Roep aan met webshop_id en title als script parameters
+  mode: single
+  trigger: []  # Alleen via script/service call
+  fields:
+    webshop_id:
+      description: AH webshop product ID
+    title:
+      description: Product naam
+  action:
+    - service: ah_shopping.add_to_list
+      data:
+        webshop_id: "{{ webshop_id | int }}"
+        title: "{{ title }}"
+        quantity: 1

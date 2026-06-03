@@ -1,0 +1,40 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "AH Shopping",
+        "description": "Verbind met Albert Heijn via de Appie mobiele API.",
+        "data": {
+          "auth_mode": "Authenticatiemodus"
+        }
+      },
+      "oauth": {
+        "title": "OAuth Login",
+        "description": "Open de volgende URL in je browser en log in met je AH-account:\n\n{oauth_url}\n\nNa het inloggen word je doorgestuurd naar een pagina met een autorisatiecode (of `appie://login-exit?code=...`). Kopieer de code en plak hem hieronder.",
+        "data": {
+          "auth_code": "Autorisatiecode"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth_code": "Ongeldige of verlopen autorisatiecode. Probeer het opnieuw.",
+      "cannot_connect": "Kan geen verbinding maken met de AH API. Controleer je internetverbinding."
+    },
+    "abort": {
+      "already_configured": "AH Shopping is al geconfigureerd."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "AH Shopping Opties",
+        "data": {
+          "scan_interval": "Bon-scan interval (seconden)",
+          "max_search_results": "Maximaal aantal zoekresultaten",
+          "enable_receipts_sensor": "Bon-sensoren inschakelen",
+          "experimental_cart_enabled": "Experimentele winkelwagen-functies inschakelen (NIET aanbevolen)"
+        }
+      }
+    }
+  }
+}

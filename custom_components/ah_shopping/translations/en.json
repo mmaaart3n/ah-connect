@@ -1,0 +1,40 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "AH Shopping",
+        "description": "Connect to Albert Heijn via the Appie mobile API.",
+        "data": {
+          "auth_mode": "Authentication mode"
+        }
+      },
+      "oauth": {
+        "title": "OAuth Login",
+        "description": "Open the following URL in your browser and log in with your AH account:\n\n{oauth_url}\n\nAfter login you will be redirected to a page that shows an authorization code (or `appie://login-exit?code=...`). Copy the code and paste it below.",
+        "data": {
+          "auth_code": "Authorization code"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth_code": "Invalid or expired authorization code. Please try again.",
+      "cannot_connect": "Could not connect to the AH API. Check your internet connection."
+    },
+    "abort": {
+      "already_configured": "AH Shopping is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "AH Shopping Options",
+        "data": {
+          "scan_interval": "Receipt scan interval (seconds)",
+          "max_search_results": "Maximum search results",
+          "enable_receipts_sensor": "Enable receipt sensors",
+          "experimental_cart_enabled": "Enable experimental cart features (NOT recommended)"
+        }
+      }
+    }
+  }
+}

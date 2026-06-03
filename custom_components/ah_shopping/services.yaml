@@ -1,0 +1,86 @@
+search_products:
+  name: Search products
+  description: Search Albert Heijn products by query string.
+  fields:
+    query:
+      name: Query
+      description: Search term (e.g. "melk", "brood").
+      required: true
+      example: "melk"
+      selector:
+        text:
+    limit:
+      name: Limit
+      description: Maximum number of results (default 10, max 50).
+      required: false
+      default: 10
+      selector:
+        number:
+          min: 1
+          max: 50
+
+add_to_list:
+  name: Add to list
+  description: Add a product to the local AH shopping list.
+  fields:
+    webshop_id:
+      name: Webshop ID
+      description: AH webshop product ID.
+      required: true
+      selector:
+        number:
+          min: 1
+          mode: box
+    title:
+      name: Title
+      description: Product title (optional, for display).
+      required: false
+      selector:
+        text:
+    quantity:
+      name: Quantity
+      description: Number of items to add.
+      required: false
+      default: 1
+      selector:
+        number:
+          min: 1
+          mode: box
+
+remove_from_list:
+  name: Remove from list
+  description: Remove a product from the local AH shopping list.
+  fields:
+    webshop_id:
+      name: Webshop ID
+      description: AH webshop product ID to remove.
+      required: true
+      selector:
+        number:
+          min: 1
+          mode: box
+
+clear_list:
+  name: Clear list
+  description: Remove all items from the local AH shopping list.
+
+get_list:
+  name: Get list
+  description: Retrieve the current shopping list (fires ah_shopping_list_retrieved event).
+
+refresh_receipts:
+  name: Refresh receipts
+  description: Force refresh receipt data from AH (authenticated mode only).
+
+export_list_to_todo:
+  name: Export list to todo
+  description: Export shopping list items to a Home Assistant todo list.
+  fields:
+    todo_entity_id:
+      name: Todo entity ID
+      description: Target todo entity (e.g. todo.shopping_list). Auto-detected if omitted.
+      required: false
+      example: "todo.shopping_list"
+      selector:
+        entity:
+          domain: todo
